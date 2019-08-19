@@ -31,6 +31,8 @@ void soma_empac(VETOR &x, float alpha, VETOR y);
 
 void soma_empac_seq(VETOR &x, vector<float> alpha, vector<VETOR> y);
 
+void ord_vetor(VETOR &x);
+
 struct MATRIZ{
 	vector<int> irn, jcn;
 	vector<float> val;
@@ -51,7 +53,7 @@ vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
 
 int main() {
 
-	vector<int> uind = {2, 4}, vind = {0, 2};
+	vector<int> uind = {4, 2}, vind = {0, 2};
 	vector<float> uval = {1.0, 2.0}, vval = { 4.0, 3.0 };
 
 	VETOR u(uind, uval), v(vind, vval);
@@ -60,7 +62,7 @@ int main() {
 	
 	//soma_empac(u, 0.5, v);
 
-	vector<int>
+	/*vector<int>
 		Ai = { 0, 1 },
 		Aj = { 0, 1 };
 	vector<float> Av = { 1.0, 1.0 };
@@ -69,7 +71,9 @@ int main() {
 
 	MATRIZ A(Ai, Aj, Av);
 
-	vector<float> y = prod_matriz_vetor(A, x);
+	vector<float> y = prod_matriz_vetor(A, x);*/
+
+	ord_vetor(u);
 
 	return 0;
 }
@@ -134,7 +138,32 @@ void soma_empac(VETOR & x, float alpha, VETOR y){
 
 void soma_empac_seq(VETOR & x, vector<float> alpha, vector<VETOR> y){
 
+}
 
+void ord_vetor(VETOR &x) {
+	vector<int> work(N, 0);
+
+	for (int i = 0; i < x.size(); i++) {
+		int j = x.ind[i];
+		work[j]++;
+	}
+
+	work[0]++;
+	for (int i = 1; i < N; i++)
+		work[i] += work[i - 1];
+	
+	vector<float> value_new(x.size(), 0);
+	vector<int> map(x.size(), 0);
+
+	for (int k = 0; k < x.size(); k++){
+		int j = x.ind[k];
+		int k_new = work[j] - 1;
+		work[j] = k_new;
+		value_new[k_new-1] = x.vals[k];
+		map[k_new-1] = j;
+	}
+	x.ind = map;
+	x.vals = value_new;
 }
 
 vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x) {
