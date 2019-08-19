@@ -24,8 +24,12 @@ struct VETOR{
 };
 
 float produto_interno(vector<float> v_full, VETOR v_e);
+
 float produto_interno_ord(VETOR v, VETOR u);
+
 void soma_empac(VETOR &x, float alpha, VETOR y);
+
+void soma_empac_seq(VETOR &x, vector<float> alpha, vector<VETOR> y);
 
 struct MATRIZ{
 	vector<int> irn, jcn;
@@ -126,6 +130,11 @@ void soma_empac(VETOR & x, float alpha, VETOR y){
 			w_full[y.ind[i]] = 0;
 		}
 	}
+}
+
+void soma_empac_seq(VETOR & x, vector<float> alpha, vector<VETOR> y){
+
+
 }
 
 vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x) {
