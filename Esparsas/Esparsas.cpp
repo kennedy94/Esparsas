@@ -68,9 +68,7 @@ struct MATRIZ_VET_COL{
 
 vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
 
-
-
-
+MATRIZ_LINKED_COL converter_matriz(MATRIZ A);
 
 
 
@@ -102,6 +100,22 @@ int main() {
 	vector<float> y = prod_matriz_vetor(A, x);*/
 
 	//ord_vetor(u);
+
+	//TESTES PARA MATRIZ------------------------------------------------------------
+
+	vector<int> irow = { 4,5,1,1,5,2,4,3,3,2,1 },
+		jcol = { 1,2,2,1,5,3,4,5,2,4,5 };
+
+	for (int i = 0; i < irow.size(); i++){
+		irow[i]--;
+		jcol[i]--;
+	}
+
+	vector<float> val = { -1,3,2,1,6,-3,-4,-5,-2,4,5 };
+
+	MATRIZ A(irow, jcol, val);
+
+	converter_matriz(A);
 
 	return 0;
 }
@@ -247,4 +261,26 @@ vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x) {
 		y[A.irn[k]] += A.val[k] * x[A.jcn[k]];
 
 	return y;
+}
+
+MATRIZ_LINKED_COL converter_matriz(MATRIZ A)
+{
+	MATRIZ_LINKED_COL B;
+
+	vector<int> col_start(N, -1), row_index(A.size()), link(A.size(),-1);
+
+	for (int k = 0; k < A.size(); k++){
+		//if (col_start[A.jcn[k]] == -1) {
+		//	col_start[A.jcn[k]] = k;
+		//}
+
+		row_index[k] = A.irn[k];
+		link[k] = col_start[A.jcn[k]];
+		col_start[A.jcn[k]] = k;
+	}
+
+
+
+
+	return B;
 }
