@@ -8,6 +8,7 @@ using namespace std;
 //Variáveis globais
 int N = 1000;
 vector<float> w_full(N, 0);
+vector<int> p_full(N, -1);
 
 
 struct VETOR{
@@ -29,6 +30,8 @@ float produto_interno_ord(VETOR v, VETOR u);
 
 void soma_empac(VETOR &x, float alpha, VETOR y);
 
+void soma_empac_alternativa(VETOR &x, float alpha, VETOR y);
+
 void soma_empac_seq(VETOR &x, vector<float> alpha, vector<VETOR> y);
 
 void ord_vetor(VETOR &x);
@@ -46,21 +49,46 @@ struct MATRIZ{
 	}
 };
 
+struct MATRIZ_LINKED_COL {
+	vector<int> col_start, row_index, link;
+	vector<float> value;
+};
+
+
+/*Matriz como coceção de vetores esparsos coluna*/
+struct MATRIZ_VET_LIN{
+	vector<int> len_col, col_start, row_index;
+	vector<float> value;
+};
+
+struct MATRIZ_VET_COL{
+	vector<int> lenrow, irowst, jcn;
+	vector<float> value;
+};
+
 vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
+
+
+
 
 
 
 
 int main() {
 
-	vector<int> uind = {4, 2}, vind = {0, 2};
+	vector<int> uind = {2, 4}, vind = {0, 2};
 	vector<float> uval = {1.0, 2.0}, vval = { 4.0, 3.0 };
 
-	VETOR u(uind, uval), v(vind, vval);
+	VETOR u(uind, uval), v(vind, vval), z(uind,vval);
+
+	vector<float> alpha_vet = {0.25, 0.5};
 
 	//cout << produto_interno_ord(u,v) << endl;
 	
 	//soma_empac(u, 0.5, v);
+	//soma_empac_alternativa(u, 0.5, v);
+
+	soma_empac_seq(u, alpha_vet, vector<VETOR> {v, z});
 
 	/*vector<int>
 		Ai = { 0, 1 },
@@ -73,7 +101,7 @@ int main() {
 
 	vector<float> y = prod_matriz_vetor(A, x);*/
 
-	ord_vetor(u);
+	//ord_vetor(u);
 
 	return 0;
 }
@@ -136,8 +164,51 @@ void soma_empac(VETOR & x, float alpha, VETOR y){
 	}
 }
 
-void soma_empac_seq(VETOR & x, vector<float> alpha, vector<VETOR> y){
+void soma_empac_alternativa(VETOR & x, float alpha, VETOR y) {
+	//guarda indíces usados em x em um vetor denso
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = i;
 
+
+	//para todo yi soma alpha*yi correspondente em x
+	//se nao houver posicao em x, adiciona e atualiza vetor denso
+	for (int i = 0; i < y.size(); i++) {
+		if (p_full[y.ind[i]] != -1) {
+			x.vals[p_full[y.ind[i]]] += alpha * y.vals[i];
+		}
+		else {
+			p_full[y.ind[i]] = x.size();
+			x.ind.push_back(y.ind[i]);
+			x.vals.push_back(alpha * y.vals[i]);
+		}
+	}
+	
+	//recupera valores originais do vetor auxiliar denso de indices
+	for (int i = 0; i < x.size(); i++) 
+		p_full[x.ind[i]] = -1;
+}
+
+void soma_empac_seq(VETOR & x, vector<float> alpha, vector<VETOR> y){
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = i;
+
+	for (int iy = 0; iy < y.size(); iy++)
+	{
+		for (int i = 0; i < y.size(); i++) {
+			if (p_full[y[iy].ind[i]] != -1) {
+				x.vals[p_full[y[iy].ind[i]]] += alpha[iy] * y[iy].vals[i];
+			}
+			else {
+				p_full[y[iy].ind[i]] = x.size();
+				x.ind.push_back(y[iy].ind[i]);
+				x.vals.push_back(alpha[iy] * y[iy].vals[i]);
+			}
+
+		}
+	}
+
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = -1;
 }
 
 void ord_vetor(VETOR &x) {
