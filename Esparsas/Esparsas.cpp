@@ -71,6 +71,9 @@ vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
 MATRIZ_LINKED_COL converter_matriz(MATRIZ A);
 
 
+VETOR questao2_2(VETOR x, float alpha, VETOR y);
+
+
 
 int main() {
 
@@ -84,9 +87,9 @@ int main() {
 	//cout << produto_interno_ord(u,v) << endl;
 	
 	//soma_empac(u, 0.5, v);
-	//soma_empac_alternativa(u, 0.5, v);
+	VETOR Z = questao2_2(u, 0.5, v);
 
-	soma_empac_seq(u, alpha_vet, vector<VETOR> {v, z});
+	//soma_empac_seq(u, alpha_vet, vector<VETOR> {v, z});
 
 	/*vector<int>
 		Ai = { 0, 1 },
@@ -103,7 +106,7 @@ int main() {
 
 	//TESTES PARA MATRIZ------------------------------------------------------------
 
-	vector<int> irow = { 4,5,1,1,5,2,4,3,3,2,1 },
+	/*vector<int> irow = { 4,5,1,1,5,2,4,3,3,2,1 },
 		jcol = { 1,2,2,1,5,3,4,5,2,4,5 };
 
 	for (int i = 0; i < irow.size(); i++){
@@ -115,7 +118,7 @@ int main() {
 
 	MATRIZ A(irow, jcol, val);
 
-	converter_matriz(A);
+	converter_matriz(A);*/
 
 	return 0;
 }
@@ -265,22 +268,67 @@ vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x) {
 
 MATRIZ_LINKED_COL converter_matriz(MATRIZ A)
 {
-	MATRIZ_LINKED_COL B;
-
 	vector<int> col_start(N, -1), row_index(A.size()), link(A.size(),-1);
 
 	for (int k = 0; k < A.size(); k++){
-		//if (col_start[A.jcn[k]] == -1) {
-		//	col_start[A.jcn[k]] = k;
-		//}
-
 		row_index[k] = A.irn[k];
 		link[k] = col_start[A.jcn[k]];
 		col_start[A.jcn[k]] = k;
 	}
 
-
-
+	MATRIZ_LINKED_COL B;
+	B.col_start = col_start;
+	B.link = link;
+	B.row_index = row_index;
+	B.value = A.val;
 
 	return B;
+}
+
+VETOR questao2_2(VETOR x, float alpha, VETOR y)
+{
+	vector<int> zind;
+	vector<float> zval;
+
+	int i = 0, j = 0;
+
+	while (true){
+		if (i == x.size() && j == y.size()) break;
+
+		if (i < x.size() && j < y.size()){
+			if (x.ind[i] == y.ind[j] && i < x.size() && j < y.size()) {
+				zval.push_back(x.vals[i] + alpha * y.vals[j]);
+				zind.push_back(x.ind[i]);
+				i++; j++;
+			}
+			else {
+				if (x.ind[i] < y.ind[j]) {
+					zind.push_back(x.ind[i]);
+					zval.push_back(x.vals[i]);
+					i++;
+				}
+				else
+				{
+					zind.push_back(y.ind[j]);
+					zval.push_back(alpha * y.vals[j]);
+					j++;
+				}
+			}
+		}
+		else{
+			if (i < x.size()) {
+				zind.push_back(x.ind[i]);
+				zval.push_back(x.vals[i]);
+				i++;
+			}
+			else{
+				zind.push_back(y.ind[j]);
+				zval.push_back(alpha * y.vals[j]);
+				j++;
+			}
+		}
+	}
+
+	VETOR z(zind, zval);
+	return z;
 }
