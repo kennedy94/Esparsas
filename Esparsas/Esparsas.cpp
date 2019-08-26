@@ -56,12 +56,12 @@ struct MATRIZ_LINKED_COL {
 
 
 /*Matriz como coceção de vetores esparsos coluna*/
-struct MATRIZ_VET_LIN{
+struct MATRIZ_VET_COL{
 	vector<int> len_col, col_start, row_index;
 	vector<float> value;
 };
 
-struct MATRIZ_VET_COL{
+struct MATRIZ_VET_LIN{
 	vector<int> lenrow, irowst, jcn;
 	vector<float> value;
 };
@@ -71,14 +71,16 @@ vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
 MATRIZ_LINKED_COL converter_matriz(MATRIZ A);
 
 
-VETOR questao2_2(VETOR x, float alpha, VETOR y);
+VETOR questao2_1(VETOR x, float alpha, VETOR y);
+
+void questao2_3(VETOR &x, float alpha, VETOR y);
 
 
 
 int main() {
 
-	vector<int> uind = {2, 4}, vind = {0, 2};
-	vector<float> uval = {1.0, 2.0}, vval = { 4.0, 3.0 };
+	vector<int> uind = {2, 4, 0}, vind = {0, 2};
+	vector<float> uval = {1.0, 2.0, 9.0}, vval = { 4.0, 3.0 };
 
 	VETOR u(uind, uval), v(vind, vval), z(uind,vval);
 
@@ -87,7 +89,9 @@ int main() {
 	//cout << produto_interno_ord(u,v) << endl;
 	
 	//soma_empac(u, 0.5, v);
-	VETOR Z = questao2_2(u, 0.5, v);
+	VETOR Z = questao2_1(u, 0.5, v);
+
+	questao2_3(u, 0.5, v);
 
 	//soma_empac_seq(u, alpha_vet, vector<VETOR> {v, z});
 
@@ -285,7 +289,7 @@ MATRIZ_LINKED_COL converter_matriz(MATRIZ A)
 	return B;
 }
 
-VETOR questao2_2(VETOR x, float alpha, VETOR y)
+VETOR questao2_1(VETOR x, float alpha, VETOR y)
 {
 	vector<int> zind;
 	vector<float> zval;
@@ -331,4 +335,22 @@ VETOR questao2_2(VETOR x, float alpha, VETOR y)
 
 	VETOR z(zind, zval);
 	return z;
+}
+
+void questao2_3(VETOR & x, float alpha, VETOR y){
+
+	//guarda indíces usados em x em um vetor denso
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = i;
+
+
+	//para todo yi soma alpha*yi correspondente em x
+	//se nao houver posicao em x, adiciona e atualiza vetor denso
+	for (int i = 0; i < y.size(); i++) {
+		x.vals[p_full[y.ind[i]]] += alpha * y.vals[i];
+	}
+
+	//recupera valores originais do vetor auxiliar denso de indices
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = -1;
 }
