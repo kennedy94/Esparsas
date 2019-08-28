@@ -24,6 +24,12 @@ struct VETOR{
 
 };
 
+struct VETOR_link {
+	vector<float> value;
+	vector<int> link;
+	int header;
+};
+
 float produto_interno(vector<float> v_full, VETOR v_e);
 
 float produto_interno_ord(VETOR v, VETOR u);
@@ -66,32 +72,41 @@ struct MATRIZ_VET_LIN{
 	vector<float> value;
 };
 
+struct VETOR_double_link {
+	vector<int> f_link, b_link;
+	vector<float> values;
+	int f_header, b_header;
+};
+
 vector<float> prod_matriz_vetor(MATRIZ A, vector<float> x);
 
 MATRIZ_LINKED_COL converter_matriz(MATRIZ A);
 
-
 VETOR questao2_1(VETOR x, float alpha, VETOR y);
+
+void questao2_2(VETOR &x, float alpha, VETOR y);
 
 void questao2_3(VETOR &x, float alpha, VETOR y);
 
+void questao2_6(VETOR_link &x, int i);
 
+void questao2_7(VETOR_double_link &x, int i);
 
 int main() {
 
-	vector<int> uind = {2, 4, 0}, vind = {0, 2};
+	/*vector<int> uind = {2, 4, 0}, vind = {0, 2};
 	vector<float> uval = {1.0, 2.0, 9.0}, vval = { 4.0, 3.0 };
 
 	VETOR u(uind, uval), v(vind, vval), z(uind,vval);
 
-	vector<float> alpha_vet = {0.25, 0.5};
+	vector<float> alpha_vet = {0.25, 0.5};*/
 
 	//cout << produto_interno_ord(u,v) << endl;
 	
 	//soma_empac(u, 0.5, v);
-	VETOR Z = questao2_1(u, 0.5, v);
+	/*VETOR Z = questao2_1(u, 0.5, v);
 
-	questao2_3(u, 0.5, v);
+	questao2_3(u, 0.5, v);*/
 
 	//soma_empac_seq(u, alpha_vet, vector<VETOR> {v, z});
 
@@ -123,6 +138,33 @@ int main() {
 	MATRIZ A(irow, jcol, val);
 
 	converter_matriz(A);*/
+
+	//Questao 2.6------------------------------------------------------------
+	vector<float> values = {10, 3, 5, 2};
+	/*vector<int> links = {1, 2, 3, -1};
+	int header = 0;
+
+	VETOR_link vet;
+	vet.header = header;
+	vet.link = links;
+	vet.value = values;
+	
+	questao2_6(vet, 1);*/
+
+	//Questao 2.7------------------------------------------------------------
+	vector<int> f_links = { 3, 0, -1, 2 },
+		b_links = { 1, -1, 3, 0 };
+	values = { 3, 10, 2, 5 };
+
+	VETOR_double_link vet_d;
+	vet_d.b_header = 2;
+	vet_d.f_header = 1;
+	vet_d.f_link = f_links;
+	vet_d.b_link = b_links;
+	vet_d.values = values;
+
+	questao2_7(vet_d, 3);
+
 
 	return 0;
 }
@@ -337,6 +379,31 @@ VETOR questao2_1(VETOR x, float alpha, VETOR y)
 	return z;
 }
 
+void questao2_2(VETOR & x, float alpha, VETOR y){
+
+	//guarda indíces usados em x em um vetor denso
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = i;
+
+
+	//para todo yi soma alpha*yi correspondente em x
+	//se nao houver posicao em x, adiciona e atualiza vetor denso
+	for (int i = 0; i < y.size(); i++) {
+		if (p_full[y.ind[i]] != -1) {
+			x.vals[p_full[y.ind[i]]] += alpha * y.vals[i];
+		}
+		else {
+			p_full[y.ind[i]] = x.size();
+			x.ind.push_back(y.ind[i]);
+			x.vals.push_back(alpha * y.vals[i]);
+		}
+	}
+
+	//recupera valores originais do vetor auxiliar denso de indices
+	for (int i = 0; i < x.size(); i++)
+		p_full[x.ind[i]] = -1;
+}
+
 void questao2_3(VETOR & x, float alpha, VETOR y){
 
 	//guarda indíces usados em x em um vetor denso
@@ -353,4 +420,77 @@ void questao2_3(VETOR & x, float alpha, VETOR y){
 	//recupera valores originais do vetor auxiliar denso de indices
 	for (int i = 0; i < x.size(); i++)
 		p_full[x.ind[i]] = -1;
+}
+
+void questao2_6(VETOR_link &x, int i) {
+	if (i == 0) {
+		x.header = x.link[x.header];
+		x.link[i] = -1;
+		x.value[i] = NULL;
+
+		return;
+	}
+
+	int cont = x.header,
+		anterior;
+
+	for (int j = 0; j < i; j++){
+		anterior = cont;
+		cont = x.link[cont];
+	}
+
+	x.link[anterior] = x.link[cont];
+
+	x.link[cont] = -1;
+	x.value[cont] = NULL;
+}
+
+
+
+void questao2_7(VETOR_double_link &x, int i){
+	if (i == 0) {
+		int antigo_header = x.f_header;
+		x.f_header = x.f_link[antigo_header];
+
+		x.b_link[x.f_header] = -1;
+		
+		x.f_link[antigo_header] = -1;
+		x.values[antigo_header] = NULL;
+		x.b_link[antigo_header] = -1;
+
+		return;
+	}
+
+	int cont = x.f_header,
+		anterior;
+
+	for (int j = 0; j < i; j++) {
+		anterior = cont;
+		cont = x.f_link[anterior];
+	}
+
+	if (cont != x.b_header)	{
+		x.f_link[anterior] = x.f_link[cont];
+
+		x.b_link[x.f_link[cont]] = anterior;
+
+		x.f_link[cont] = -1;
+		x.b_link[cont] = -1;
+		x.values[cont] = 0;
+	}
+	else {
+		x.f_link[anterior] = -1;
+
+		x.f_link[cont] = -1;
+		x.b_link[cont] = -1;
+		x.values[cont] = 0;
+
+		x.b_header = anterior;
+
+	}
+
+	
+
+
+
 }
